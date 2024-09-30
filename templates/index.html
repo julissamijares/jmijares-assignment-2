@@ -94,6 +94,7 @@
 
             data = generateRandomPoints(100);
             centroids = generateInitialCentroids(data, n_clusters, init_method);
+            originalCentroids = centroids.slice(); // Store a copy of the original centroids
             initializePlot(data, centroids);
         }
 
@@ -198,9 +199,7 @@
         }
 
         function reset() {
-            // Re-initialize data and centroids
-            data = generateRandomPoints(100);
-            centroids = [];
+            centroids = originalCentroids.slice(); // Use original centroids
             initializePlot(data, centroids); // Re-draw the plot
         }
 
