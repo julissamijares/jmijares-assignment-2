@@ -50,7 +50,7 @@
                 marker: { color: labels.length ? labels : 'gray', size: 10 },
                 name: 'Data Points',
                 type: 'scatter',
-                hoverinfo: 'none'  // Disable hover information
+                hoverinfo: 'none'
             };
 
             let centroidPoints = {
@@ -63,8 +63,7 @@
             };
 
             const layout = {
-                title: `KMeans Clustering with ${n_clusters} Clusters`,
-                xaxis: { range: [-10, 10], title: 'X Coordinate' },
+                title: `KMeans Clustering with ${n_clusters} Clusters`, // Fixed quotes for interpolation                xaxis: { range: [-10, 10], title: 'X Coordinate' },
                 yaxis: { range: [-10, 10], title: 'Y Coordinate' },
                 showlegend: true,
                 margin: { t: 50, r: 30, l: 50, b: 50 },
@@ -73,25 +72,20 @@
 
             Plotly.newPlot('plot', [points, centroidPoints], layout);
 
-            // Check if the initialization method is 'Manual'
-            if (init_method === 'Manual') {
-                const plotDiv = document.getElementById('plot');
+            // Click event for manual centroid selection
+            const plotDiv = document.getElementById('plot');
+            plotDiv.on('click', function(event) {
+                if (init_method === 'Manual') {
+                    const rect = plotDiv.getBoundingClientRect();
+                    const x = ((event.clientX - rect.left) / rect.width) * 20 - 10; // Convert to [-10, 10]
+                    const y = ((event.clientY - rect.top) / rect.height) * 20 - 10;  // Convert to [-10, 10]
 
-                // Add click event listener to the plot
-                plotDiv.on('plotly_click', function(eventData) {
-                    // Get the clicked point's coordinates
-                    const x = eventData.points[0].x;
-                    const y = eventData.points[0].y;
-
-                    // Add the new centroid to the centroids array
-                    centroids.push([x, y]);
-                    console.log("New Centroid Added:", centroids);
-
-
-                    // Re-draw the plot with the new centroids
-                    initializePlot(data, centroids, labels); // Reuse the initializePlot function
-                });
-            }
+                    if (centroids.length < n_clusters) { // Limit the number of centroids
+                        centroids.push([x, y]); // Add the new centroid
+                        initializePlot(data, centroids, labels); // Re-draw the plot
+                    }
+                }
+            });
         }
 
         function generateData() {
@@ -204,9 +198,10 @@
         }
 
         function reset() {
-            // Re-initialize the centroids to an empty array or reset logic as needed
+            // Re-initialize data and centroids
+            data = generateRandomPoints(100);
             centroids = [];
-            initializePlot(data, centroids);
+            initializePlot(data, centroids); // Re-draw the plot
         }
 
         generateData();
