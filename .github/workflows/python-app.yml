@@ -36,11 +36,18 @@ jobs:
     - name: Install and run project
       run: |
         make install
-        make run
+        nohup make run &  # Run the server in the background
+
+    - name: Sleep for 30 seconds
+      run: |
+        sleep 30  # Keep the server running for 30 seconds
+
+    - name: Kill the server process
+      run: |
+        pkill -f 'python app.py'  # Adjust this command to match how your server is run
 
     - name: Check server response
       run: |
-        sleep 5  # Adjust based on how long your server takes to start
         curl -f http://localhost:3000 || exit 1  # Check if the server is running
 
     - name: Test with pytest
