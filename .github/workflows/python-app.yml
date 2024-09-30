@@ -30,18 +30,19 @@ jobs:
 
     - name: Lint with flake8
       run: |
-        # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
     - name: Install and run project
       run: |
         make install
-        make run &
-        sleep 10  # Adjust this sleep time if necessary
+        make run
+
+    - name: Check server response
+      run: |
+        sleep 5  # Adjust based on how long your server takes to start
+        curl -f http://localhost:3000 || exit 1  # Check if the server is running
 
     - name: Test with pytest
       run: |
         pytest
-
