@@ -168,6 +168,11 @@
             .then(result => {
                 centroids = result.centroids;
                 let labels = result.labels;
+
+                // Check if the clustering has converged
+                if (result.converged) { // You need to check if the response indicates convergence
+                    alert("Congrats! You've reached convergence."); // Show the pop-up message
+        }
                 updatePlot(labels);
             });
         }
@@ -195,8 +200,38 @@
         }
 
         function converge() {
-            stepThrough();
-        }
+    let previousCentroids = centroids.slice(); // Store the current centroids
+
+    const convergenceStep = () => {
+        fetch('/api/step', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ data, centroids, n_clusters })
+        })
+        .then(response => response.json())
+        .then(result => {
+            centroids = result.centroids;
+            let labels = result.labels;
+
+            updatePlot(labels); // Update the plot with new labels
+
+            // Check if the centroids have converged
+            if (JSON.stringify(centroids) === JSON.stringify(previousCentroids)) {
+                alert("Congrats! You've reached convergence."); // Show the pop-up message
+            } else {
+                previousCentroids = centroids.slice(); // Update previous centroids for the next iteration
+                convergenceStep(); // Continue to the next step
+            }
+        })
+        .catch(error => console.error('Error:', error)); // Log any errors
+    };
+
+    convergenceStep(); // Start the convergence process
+}
+
+
 
         function reset() {
             centroids = originalCentroids.slice(); // Use original centroids

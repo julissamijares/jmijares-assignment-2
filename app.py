@@ -24,6 +24,11 @@ def step():
     new_centroids = kmeans.cluster_centers_
     labels = kmeans.labels_.tolist()
 
+    converged = np.array_equal(new_centroids, centroids)
+
+    # Update centroids
+    centroids[:] = new_centroids
+
     return jsonify({
         'centroids': new_centroids.tolist(),
         'labels': labels
